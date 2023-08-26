@@ -172,7 +172,11 @@ host() {
 	case "${ARCH}" in
 	x86_64)
 		if [[ "$(arch)" = "${ARCH}" ]]; then
-			cpu="host"
+			if [[ -f /dev/kvm ]]; then
+    				cpu="host"
+			else
+				cpu="max"
+			fi
 		fi
 		;;
 	arm64)
