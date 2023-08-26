@@ -159,8 +159,10 @@ host() {
 
 	local accel
 	if [[ "$(arch)" = "${ARCH}" ]]; then
+    if [[ -f /dev/kvm ]]; then
 		accel+=" -machine accel=kvm:tcg"
 		accel+=" -enable-kvm"
+    fi
 	fi
 
 	fixup host
