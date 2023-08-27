@@ -159,7 +159,7 @@ host() {
 
 	local accel
 	if [[ "$(arch)" = "${ARCH}" ]]; then
-    if [[ -f /dev/kvm ]]; then
+    if [[ -e /dev/kvm ]]; then
 		accel+=" -machine accel=kvm:tcg"
 		accel+=" -enable-kvm"
     fi
@@ -172,7 +172,7 @@ host() {
 	case "${ARCH}" in
 	x86_64)
 		if [[ "$(arch)" = "${ARCH}" ]]; then
-			if [[ -f /dev/kvm ]]; then
+			if [[ -e /dev/kvm ]]; then
     				cpu="host"
 			else
 				cpu="max"
@@ -183,7 +183,7 @@ host() {
 		if [[ "$(arch)" = "${ARCH}" ]]; then
 			cpu="host"
 		else
-			accel+=" -machine virt"
+			accel+=" -machine virt -accel tcg "
 			cpu="max"
 		fi
 		qemu_flavor=aarch64
