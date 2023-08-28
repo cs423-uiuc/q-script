@@ -393,6 +393,10 @@ guest() {
 			else
 				say "busybox is found, but no /etc/udhcpc/default.script, use assigned ip address"
 				if [[ ! -z "$V4_ADDR" ]]; then
+					mask-dir /etc/resolvconf/run
+					mkdir -p /run/resolvconf
+					echo "nameserver 8.8.8.8" >/run/resolvconf/resolv.conf
+
 					local dev=$(ls -d /sys/bus/virtio/drivers/virtio_net/virtio* | sort -g | head -n1)
 					local iface=$(ls $dev/net)
 					ip link set dev $iface up
