@@ -454,7 +454,7 @@ guest() {
 	say setup cgroups
 	mount -t cgroup -o cpu,cpuacct none /dev/cgroup/cpu
 	mount -t cgroup -o cpuset none /dev/cgroup/cpuset
-	mount -t cgroup -o net none /dev/cgroup/net &>/dev/null
+	mount -t cgroup -o net_cls none /dev/cgroup/net &>/dev/null
 	sysctl -q kernel.allow_bpf_attach_netcg=0 &>/dev/null
 	mount -t cgroup2 none /sys/fs/cgroup
 
