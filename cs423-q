@@ -87,11 +87,11 @@ host() {
 	local fs
 	fs+=" -fsdev local,multidevs=remap,id=vfs1,path=$DIR_ROOT,security_model=none,readonly=on"
 	fs+=" -fsdev local,id=vfs2,path=$(pwd),security_model=none"
-	fs+=" -fsdev local,id=vfs3,path=$DIR_EXPORT,security_model=none"
+	# fs+=" -fsdev local,id=vfs3,path=$DIR_EXPORT,security_model=none"
 	fs+=" -fsdev local,id=vfs4,path=$DIR_Q,security_model=none,readonly=on"
 	fs+=" -device virtio-9p-pci,fsdev=vfs1,mount_tag=/dev/root"
 	fs+=" -device virtio-9p-pci,fsdev=vfs2,mount_tag=/dev/kernel"
-	fs+=" -device virtio-9p-pci,fsdev=vfs3,mount_tag=$DIR_EXPORT"
+	# fs+=" -device virtio-9p-pci,fsdev=vfs3,mount_tag=$DIR_EXPORT"
 	fs+=" -device virtio-9p-pci,fsdev=vfs4,mount_tag=/tmp/dir_q"
 
 	local console
@@ -100,7 +100,7 @@ host() {
 
 	cmdline+=" earlyprintk=serial,ttyS0,115200"
 	if [[ "${ARCH}" != "arm64" ]]; then
-		cmdline+=" console=ttyS0"
+		cmdline+=" console=ttyS0,115200"
 		cmdline+=" kgdboc=ttyS1,115200"
 	fi
 	cmdline+=" oops=panic retbleed=off"
@@ -229,7 +229,6 @@ host() {
 	fi
 
 	qemu-system-${qemu_flavor} \
-		-nographic \
 		-no-reboot \
 		$accel \
 		-device i6300esb,id=watchdog0 \
