@@ -40,6 +40,7 @@ FWD_PORT=${FWD_PORT:-}
 NET_USER=${NET_USER:-true}
 NET_TAP=${NET_TAP:-false}
 NET_VHOST=${NET_VHOST:-false}
+TCG=${TCG:-false}
 
 HOST_ARCH="$(uname -m)"
 [[ "$HOST_ARCH" = "aarch64" ]] && HOST_ARCH="arm64"
@@ -65,6 +66,7 @@ usage() {
 	echo "    2 - disable cgroup v1, run only v2"
 	echo "    f - forward given localhost port (comma-separated list)"
 	echo "    n - networking mode (user,tap,vhost)"
+	echo "    t - force TCG"
 	exit 1
 }
 
@@ -163,7 +165,7 @@ host() {
 
 	local accel
 	if [[ "$HOST_ARCH" = "${ARCH}" ]]; then
-		if [[ -e /dev/kvm ]]; then
+		if [[ -e /dev/kvm && "$TCG" = "false" ]]; then
 			if [[ "${ARCH}" = "x86_64" ]]; then
 				accel+=" -machine accel=kvm:tcg"
 				accel+=" -enable-kvm"
@@ -178,7 +180,7 @@ host() {
 	case "${ARCH}" in
 	x86_64)
 		if [[ "$HOST_ARCH" = "${ARCH}" ]]; then
-			if [[ -e /dev/kvm ]]; then
+			if [[ -e /dev/kvm && "$TCG" = "false" ]]; then
 				cpu="host"
 			else
 				cpu="max"
@@ -187,7 +189,7 @@ host() {
 		;;
 	arm64)
 		if [[ "$HOST_ARCH" = "${ARCH}" ]]; then
-			if [[ -e /dev/kvm ]]; then
+			if [[ -e /dev/kvm && "$TCG" = "false" ]]; then
 				accel+=" -machine virt,accel=kvm"
             	cpu="host"
 			else
@@ -584,7 +586,7 @@ EOF
 	sleep 30
 }
 
-while getopts "2i:dhgms:c:f:n:" opt; do
+while getopts "2i:dhgms:c:f:n:t" opt; do
 	case $opt in
 	h) usage ;;
 	2) CMDLINE+=" cgroup_no_v1=all" ;;
@@ -595,6 +597,7 @@ while getopts "2i:dhgms:c:f:n:" opt; do
 	d) SSH=true ;;
 	s) SCRIPT="$OPTARG" ;;
 	f) FWD_PORT="$OPTARG" ;;
+	t) TCG=true ;;
 	n)
 		case "$OPTARG" in
 		user) ;;
