@@ -667,6 +667,7 @@ else
 	fi
 
 	if [[ -z "$ARCH" ]]; then
+		command -v file || echo "Couldn't find 'file' command, please install it first" && exit 1;
 		if file $kernel | grep -q x86; then
 			ARCH=x86_64
 		elif file $kernel | grep -q ARM64; then
