@@ -41,6 +41,7 @@ NET_USER=${NET_USER:-true}
 NET_TAP=${NET_TAP:-false}
 NET_VHOST=${NET_VHOST:-false}
 TCG=${TCG:-false}
+EXTRA_DRIVE=${EXTRA_DRIVE:-}
 
 HOST_ARCH="$(uname -m)"
 [[ "$HOST_ARCH" = "aarch64" ]] && HOST_ARCH="arm64"
@@ -67,6 +68,7 @@ usage() {
 	echo "    f - forward given localhost port (comma-separated list)"
 	echo "    n - networking mode (user,tap,vhost)"
 	echo "    t - force TCG"
+	echo "    e - attach extra virtio-blk disk image"
 	exit 1
 }
 
@@ -161,6 +163,15 @@ host() {
 
 	if [[ ! -z "$IMAGE" ]]; then
 		fs+=" -drive format=raw,file=$IMAGE"
+	fi
+
+	if [[ -n "$EXTRA_DRIVE" ]]; then
+		if [[ ! -f "$EXTRA_DRIVE" ]]; then
+			echo "Missing drive image '$EXTRA_DRIVE'" >&2
+			exit 1
+		fi
+		fs+=" -drive file=$EXTRA_DRIVE,if=none,id=extradisk,format=raw"
+		fs+=" -device virtio-blk-pci,drive=extradisk"
 	fi
 
 	local accel
@@ -586,7 +597,7 @@ EOF
 	sleep 30
 }
 
-while getopts "2i:dhgms:c:f:n:t" opt; do
+while getopts "2i:dhgms:c:f:n:te:" opt; do
 	case $opt in
 	h) usage ;;
 	2) CMDLINE+=" cgroup_no_v1=all" ;;
@@ -598,6 +609,7 @@ while getopts "2i:dhgms:c:f:n:t" opt; do
 	s) SCRIPT="$OPTARG" ;;
 	f) FWD_PORT="$OPTARG" ;;
 	t) TCG=true ;;
+	e) EXTRA_DRIVE="$OPTARG" ;;
 	n)
 		case "$OPTARG" in
 		user) ;;
